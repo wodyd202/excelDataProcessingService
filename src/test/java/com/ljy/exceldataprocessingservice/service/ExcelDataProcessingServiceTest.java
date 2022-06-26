@@ -32,13 +32,39 @@ public class ExcelDataProcessingServiceTest {
     }
 
     @Test
-    void 데이터가_잘못된_경우_에러_7번_행_마지막_컬럼이_비워져있음() throws Exception {
+    void 대용량_614_106건_데이터_조회() throws IOException {
         // given
-        ClassPathResource classPathResource = new ClassPathResource("fixture/invalid-form.xlsx");
+        ClassPathResource classPathResource = new ClassPathResource("fixture/big-file-form.xlsx");
+        InputStream inputStream = classPathResource.getInputStream();
+        ExcelReadMetaData<BasicExcelFormData_1> metaData = new ExcelReadMetaData<>(inputStream, 2, 0, BasicExcelFormData_1.class, ArrayList.class);
+
+        // when
+        Collection<BasicExcelFormData_1> testExcelObjects = excelDataProcessingService.readData(metaData);
+
+        // then
+        assertEquals(614106, testExcelObjects.size());
+    }
+
+    @Test
+    void 데이터가_잘못된_경우_에러_7번_행_컬럼이_비워져있음() throws Exception {
+        // given
+        ClassPathResource classPathResource = new ClassPathResource("fixture/invalid-form_1.xlsx");
         InputStream inputStream = classPathResource.getInputStream();
         ExcelReadMetaData<BasicExcelFormData_1> metaData = new ExcelReadMetaData<>(inputStream, 2, 0, BasicExcelFormData_1.class, ArrayList.class);
 
         // when
         assertThrows(InvalidExcelFormException.class, () -> excelDataProcessingService.readData(metaData));
     }
+
+    @Test
+    void 데이터가_잘못된_경우_에러_5번_행_컬럼이_비워져있음() throws Exception {
+        // given
+        ClassPathResource classPathResource = new ClassPathResource("fixture/invalid-form_2.xlsx");
+        InputStream inputStream = classPathResource.getInputStream();
+        ExcelReadMetaData<BasicExcelFormData_1> metaData = new ExcelReadMetaData<>(inputStream, 2, 0, BasicExcelFormData_1.class, ArrayList.class);
+
+        // when
+        assertThrows(InvalidExcelFormException.class, () -> excelDataProcessingService.readData(metaData));
+    }
+
 }

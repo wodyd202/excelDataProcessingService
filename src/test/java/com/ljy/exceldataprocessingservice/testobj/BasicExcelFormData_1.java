@@ -29,7 +29,6 @@ public class BasicExcelFormData_1 implements ExcelData {
 
     @Override
     public ExcelDataValidationResult validate() {
-        System.out.println(this);
         if(test1 == null || test1.isEmpty()) {
             return ExcelDataValidationResult.invalid("test1 항목을 입력해주세요.");
         }
