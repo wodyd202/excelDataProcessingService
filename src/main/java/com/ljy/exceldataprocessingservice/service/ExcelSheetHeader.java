@@ -47,7 +47,7 @@ public class ExcelSheetHeader<T> {
         for (Field field : metaData.getMapClassType().getDeclaredFields()) {
             ExcelColum annotation = field.getAnnotation(ExcelColum.class);
             if (annotation != null) {
-                this.columFieldMap.put(annotation.value(), field);
+                this.columFieldMap.put(annotation.headerName(), field);
             }
         }
     }

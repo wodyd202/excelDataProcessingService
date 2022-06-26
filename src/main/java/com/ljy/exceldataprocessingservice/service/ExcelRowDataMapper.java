@@ -2,14 +2,18 @@ package com.ljy.exceldataprocessingservice.service;
 
 import com.ljy.exceldataprocessingservice.service.exception.InvalidExcelFormException;
 import com.ljy.exceldataprocessingservice.service.exception.InvalidExcelType;
+import com.ljy.exceldataprocessingservice.service.metadata.ExcelColum;
 import com.ljy.exceldataprocessingservice.service.metadata.ExcelReadMetaData;
 import lombok.Getter;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @Getter
 public class ExcelRowDataMapper<T> {
@@ -18,6 +22,8 @@ public class ExcelRowDataMapper<T> {
     private final ExcelReadMetaData<T> metaData;
 
     private final ExcelSheetHeader<T> excelSheetHeader;
+
+    private final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd");
 
     public ExcelRowDataMapper(ExcelSheetHeader<T> excelSheetHeader, ExcelReadMetaData<T> metaData) {
         this.excelSheetHeader = excelSheetHeader;
@@ -90,9 +96,11 @@ public class ExcelRowDataMapper<T> {
                 field.setLong(instance, (long) cell.getNumericCellValue());
             } else if (isDoubleTypeField(field)) {
                 field.setDouble(instance, cell.getNumericCellValue());
+            } else if(isDateTypeField(field)) {
+                field.set(instance, SDF.parse(cell.getStringCellValue()));
             }
         } catch (Exception e) {
-            String message = String.format("[%d] 번째 행, [%d] 번째 열 데이터 타입이 일치하지 않습니다.", cell.getRowIndex(), cell.getColumnIndex());
+            String message = String.format("[%d] 번째 행, [%d] 번째 열 데이터 타입이 일치하지 않습니다.", cell.getRowIndex() + 1, cell.getColumnIndex());
             throw new InvalidExcelFormException(message, InvalidExcelType.NO_MATCH_CELL_TYPE);
         }
     }
@@ -119,6 +127,10 @@ public class ExcelRowDataMapper<T> {
 
     private boolean isDoubleTypeField(Field field) {
         return field.getType() == double.class || field.getType() == Double.class;
+    }
+
+    private boolean isDateTypeField(Field field) {
+        return field.getType() == Date.class;
     }
 
     private boolean isStringType(Field field) {
