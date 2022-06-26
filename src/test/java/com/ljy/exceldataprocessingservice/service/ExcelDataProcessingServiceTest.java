@@ -1,8 +1,7 @@
 package com.ljy.exceldataprocessingservice.service;
 
 import com.ljy.exceldataprocessingservice.service.exception.InvalidExcelFormException;
-import com.ljy.exceldataprocessingservice.service.metadata.ExcelReadMetaData;
-import com.ljy.exceldataprocessingservice.service.metadata.ExcelWriteMetaData;
+import com.ljy.exceldataprocessingservice.service.metadata.*;
 import com.ljy.exceldataprocessingservice.testobj.BasicExcelFormData_1;
 import com.ljy.exceldataprocessingservice.testobj.BasicExcelFormData_2;
 import com.ljy.exceldataprocessingservice.testobj.BasicExcelFormData_3;
@@ -94,7 +93,10 @@ public class ExcelDataProcessingServiceTest {
         for (int i = 0; i < 100_000; i++) {
             datas.add(new BasicExcelFormData_3("test " + i, "test" + i, "test" + i, "test" + i));
         }
-        ExcelWriteMetaData<BasicExcelFormData_3> metaData = new ExcelWriteMetaData<>("시트 타이틀", "시트 이름", datas, BasicExcelFormData_3.class);
+        ExcelSheetMetaData excelSheetMetaData = new ExcelSheetMetaData("엑셀 시트 이름");
+        ExcelTitleMetaData excelTitleMetaData = new ExcelTitleMetaData("엑셀 타이틀", 0);
+        ExcelHeaderMetaData excelHeaderMetaData = new ExcelHeaderMetaData(1);
+        ExcelWriteMetaData<BasicExcelFormData_3> metaData = new ExcelWriteMetaData<>(excelSheetMetaData, excelTitleMetaData, excelHeaderMetaData, datas, BasicExcelFormData_3.class);
 
         // when
         byte[] bytes = excelDataProcessingService.writeExcel(metaData);

@@ -1,6 +1,7 @@
 package com.ljy.exceldataprocessingservice.service;
 
-import com.ljy.exceldataprocessingservice.service.metadata.ExcelColum;
+import com.ljy.exceldataprocessingservice.service.exception.NoProccessExcelWriteException;
+import com.ljy.exceldataprocessingservice.service.metadata.ExcelTitleMetaData;
 import com.ljy.exceldataprocessingservice.service.metadata.ExcelWriteMetaData;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -21,16 +22,16 @@ public class ExcelSheetDataWriter<T> {
 
     public void execute() {
         ExcelSheetHeader<T> sheetHeader = new ExcelSheetHeader<>(metaData);
-
         drawTitle();
         drawHeader(sheetHeader);
         drawExcelBody(sheetHeader);
     }
 
     private void drawTitle() {
-        Row titleRow = targetSheet.createRow(0);
+        ExcelTitleMetaData titleMetaData = metaData.getTitleMetaData();
+        Row titleRow = targetSheet.createRow(titleMetaData.getIdx());
         Cell titleCell = titleRow.createCell(0);
-        titleCell.setCellValue(metaData.getSheetTitle());
+        titleCell.setCellValue(titleMetaData.getValue());
     }
 
     private void drawHeader(ExcelSheetHeader<T> sheetHeader) {
@@ -68,8 +69,8 @@ public class ExcelSheetDataWriter<T> {
                     if (field.getType().isEnum()) {
                         cell.setCellValue(field.get(data).toString());
                     }
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
+                }catch (IllegalAccessException e) {
+                    throw new NoProccessExcelWriteException(e);
                 }
             }
             idx++;
