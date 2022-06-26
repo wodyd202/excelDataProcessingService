@@ -20,14 +20,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ExcelDataProcessingServiceTest {
-    private ExcelDataProcessingService excelDataProcessingService = new ExcelDataProcessingService();
+    private SimpleExcelDataProcessingService excelDataProcessingService = new SimpleExcelDataProcessingService();
 
     @Test
     void 엑셀_내의_데이터_조회_1() throws IOException {
         // given
         ClassPathResource classPathResource = new ClassPathResource("fixture/data-type-form.xlsx");
         InputStream inputStream = classPathResource.getInputStream();
-        ExcelReadMetaData<BasicExcelFormData_2> metaData = new ExcelReadMetaData<>(inputStream, 2, 0, BasicExcelFormData_2.class, ArrayList.class);
+        ExcelReadMetaData<BasicExcelFormData_2> metaData = ExcelReadMetaData.basic(inputStream, BasicExcelFormData_2.class, ArrayList.class);
 
         // when
         Collection<BasicExcelFormData_2> testExcelObjects = excelDataProcessingService.readExcel(metaData);
@@ -41,7 +41,7 @@ public class ExcelDataProcessingServiceTest {
         // given
         ClassPathResource classPathResource = new ClassPathResource("fixture/basic-form.xlsx");
         InputStream inputStream = classPathResource.getInputStream();
-        ExcelReadMetaData<BasicExcelFormData_1> metaData = new ExcelReadMetaData<>(inputStream, 2, 0, BasicExcelFormData_1.class, ArrayList.class);
+        ExcelReadMetaData<BasicExcelFormData_1> metaData = ExcelReadMetaData.basic(inputStream, BasicExcelFormData_1.class, ArrayList.class);
 
         // when
         Collection<BasicExcelFormData_1> testExcelObjects = excelDataProcessingService.readExcel(metaData);
@@ -55,7 +55,7 @@ public class ExcelDataProcessingServiceTest {
         // given
         ClassPathResource classPathResource = new ClassPathResource("fixture/big-file-form.xlsx");
         InputStream inputStream = classPathResource.getInputStream();
-        ExcelReadMetaData<BasicExcelFormData_1> metaData = new ExcelReadMetaData<>(inputStream, 2, 0, BasicExcelFormData_1.class, HashSet.class);
+        ExcelReadMetaData<BasicExcelFormData_1> metaData = ExcelReadMetaData.basic(inputStream, BasicExcelFormData_1.class, HashSet.class);
 
         // when
         Collection<BasicExcelFormData_1> testExcelObjects = excelDataProcessingService.readExcel(metaData);
@@ -69,7 +69,7 @@ public class ExcelDataProcessingServiceTest {
         // given
         ClassPathResource classPathResource = new ClassPathResource("fixture/invalid-form_1.xlsx");
         InputStream inputStream = classPathResource.getInputStream();
-        ExcelReadMetaData<BasicExcelFormData_1> metaData = new ExcelReadMetaData<>(inputStream, 2, 0, BasicExcelFormData_1.class, ArrayList.class);
+        ExcelReadMetaData<BasicExcelFormData_1> metaData = ExcelReadMetaData.basic(inputStream, BasicExcelFormData_1.class, ArrayList.class);
 
         // when
         assertThrows(InvalidExcelFormException.class, () -> excelDataProcessingService.readExcel(metaData));
@@ -80,7 +80,7 @@ public class ExcelDataProcessingServiceTest {
         // given
         ClassPathResource classPathResource = new ClassPathResource("fixture/invalid-form_2.xlsx");
         InputStream inputStream = classPathResource.getInputStream();
-        ExcelReadMetaData<BasicExcelFormData_1> metaData = new ExcelReadMetaData<>(inputStream, 2, 0, BasicExcelFormData_1.class, ArrayList.class);
+        ExcelReadMetaData<BasicExcelFormData_1> metaData = ExcelReadMetaData.basic(inputStream, BasicExcelFormData_1.class, ArrayList.class);
 
         // when
         assertThrows(InvalidExcelFormException.class, () -> excelDataProcessingService.readExcel(metaData));
@@ -93,14 +93,11 @@ public class ExcelDataProcessingServiceTest {
         for (int i = 0; i < 100_000; i++) {
             datas.add(new BasicExcelFormData_3("test " + i, "test" + i, "test" + i, "test" + i));
         }
-        ExcelSheetMetaData excelSheetMetaData = new ExcelSheetMetaData("엑셀 시트 이름");
-        ExcelTitleMetaData excelTitleMetaData = new ExcelTitleMetaData("엑셀 타이틀", 0);
-        ExcelHeaderMetaData excelHeaderMetaData = new ExcelHeaderMetaData(1);
-        ExcelWriteMetaData<BasicExcelFormData_3> metaData = new ExcelWriteMetaData<>(excelSheetMetaData, excelTitleMetaData, excelHeaderMetaData, datas, BasicExcelFormData_3.class);
+        ExcelWriteMetaData<BasicExcelFormData_3> metaData = ExcelWriteMetaData.basic("엑셀 시트 이름", "엑셀 타이틀 이름", datas, BasicExcelFormData_3.class);
 
         // when
         byte[] bytes = excelDataProcessingService.writeExcel(metaData);
-        ExcelReadMetaData<BasicExcelFormData_3> readMetaData = new ExcelReadMetaData<>(new ByteArrayInputStream(bytes), 2, 0, BasicExcelFormData_3.class, ArrayList.class);
+        ExcelReadMetaData<BasicExcelFormData_3> readMetaData = ExcelReadMetaData.basic(new ByteArrayInputStream(bytes), BasicExcelFormData_3.class, ArrayList.class);
         Collection<BasicExcelFormData_3> result = excelDataProcessingService.readExcel(readMetaData);
 
         // then
