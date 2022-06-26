@@ -3,6 +3,14 @@
 https://github.com/wodyd202/excelDataProcessingService/tree/master/src/main/java/com/ljy/exceldataprocessingservice/service
 
 <hr/>
+<br/>
+
+## How to use
+- 엑셀 데이터 조회
+
+- 엑셀 생성
+
+<br/>
 
 ## Spec
 - Java8
