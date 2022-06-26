@@ -1,7 +1,9 @@
 package com.ljy.exceldataprocessingservice.service;
 
 import com.ljy.exceldataprocessingservice.service.exception.InvalidExcelFormException;
+import com.ljy.exceldataprocessingservice.service.exception.InvalidExcelType;
 import com.ljy.exceldataprocessingservice.service.metadata.ExcelData;
+import com.ljy.exceldataprocessingservice.service.metadata.ExcelDataValidationResult;
 import com.ljy.exceldataprocessingservice.service.metadata.ExcelReadMetaData;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -32,9 +34,10 @@ public class ExcelSheetDataReader<T> {
             if(excelData.isEmpty()) {
                 continue;
             }
-            if (!excelData.isValid()) {
-                String message = String.format("%d 행에 빈값이 존재합니다.", readCount);
-                throw new InvalidExcelFormException(message);
+            ExcelDataValidationResult validationResult = excelData.validate();
+            if (validationResult.hasError()) {
+                String message = String.format("[%d 행] %s", readCount, validationResult.getMessage());
+                throw new InvalidExcelFormException(message, InvalidExcelType.INVALID_DATA);
             }
             collection.add(obj);
             readCount++;

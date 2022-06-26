@@ -1,6 +1,7 @@
 package com.ljy.exceldataprocessingservice.service;
 
 import com.ljy.exceldataprocessingservice.service.exception.InvalidExcelFormException;
+import com.ljy.exceldataprocessingservice.service.exception.InvalidExcelType;
 import com.ljy.exceldataprocessingservice.service.metadata.ExcelEntity;
 import com.ljy.exceldataprocessingservice.service.metadata.ExcelReadMetaData;
 import com.monitorjbl.xlsx.StreamingReader;
@@ -24,15 +25,17 @@ public class ExcelDataProcessingService {
                 .rowCacheSize(excelEntity.rowCacheSize())
                 .bufferSize(excelEntity.bufferSize())
                 .open(metaData.getExcelInputStream())) {
+
             log.info("start excel read, meta data : {}", metaData);
             Sheet sheet = workbook.getSheetAt(0);
             ExcelSheetDataReader<T> dataReader = new ExcelSheetDataReader<>(sheet, metaData);
             Collection<T> result = dataReader.execute(metaData.getCollectionType());
             log.info("end excel read");
             return result;
+
         } catch (IOException e) {
             log.error("invalid excel form exception", e);
-            throw new InvalidExcelFormException(e);
+            throw new InvalidExcelFormException(e, InvalidExcelType.INVALID_EXCEL);
         }
     }
 }

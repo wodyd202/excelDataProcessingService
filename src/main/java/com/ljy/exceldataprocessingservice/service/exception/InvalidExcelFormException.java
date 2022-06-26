@@ -1,13 +1,15 @@
 package com.ljy.exceldataprocessingservice.service.exception;
 
-import java.io.IOException;
-
 public class InvalidExcelFormException extends RuntimeException {
-    public InvalidExcelFormException(Exception e) {
+    private final InvalidExcelType invalidExcelType;
+
+    public InvalidExcelFormException(Exception e, InvalidExcelType invalidExcelType) {
         super(e);
+        this.invalidExcelType = invalidExcelType;
     }
 
-    public InvalidExcelFormException(String message) {
+    public InvalidExcelFormException(String message, InvalidExcelType invalidExcelType) {
         super(message);
+        this.invalidExcelType = invalidExcelType;
     }
 }

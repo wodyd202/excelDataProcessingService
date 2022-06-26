@@ -1,6 +1,7 @@
 package com.ljy.exceldataprocessingservice.service;
 
 import com.ljy.exceldataprocessingservice.service.exception.InvalidExcelFormException;
+import com.ljy.exceldataprocessingservice.service.exception.InvalidExcelType;
 import com.ljy.exceldataprocessingservice.service.metadata.ExcelReadMetaData;
 import lombok.Getter;
 import org.apache.poi.ss.usermodel.Cell;
@@ -27,11 +28,19 @@ public class ExcelRowDataMapper<T> {
         T instance = newInstance();
         int cellIdx = 0;
         for (Cell cell : row) {
+            verifyValidCell(cellIdx, cell);
             String headerTitle = excelSheetHeader.get(cellIdx);
-            set(instance, headerTitle, cell);
+            map(instance, headerTitle, cell);
             cellIdx++;
         }
         return instance;
+    }
+
+    private void verifyValidCell(int cellIdx, Cell cell) {
+        if(cellIdx != cell.getColumnIndex()) {
+            String message = String.format("엑셀 양식이 올바르지 않습니다. [%d 행]을 다시 확인해주세요.", cell.getRowIndex() + 1);
+            throw new InvalidExcelFormException(message, InvalidExcelType.INVALID_EXCEL_BODY);
+        }
     }
 
     private T newInstance() {
@@ -44,7 +53,7 @@ public class ExcelRowDataMapper<T> {
         }
     }
 
-    public void set(T instance, String headerTitle, Cell cell) {
+    public void map(T instance, String headerTitle, Cell cell) {
         Field field = excelSheetHeader.getColumFieldMap().get(headerTitle);
         field.setAccessible(true);
 
@@ -69,7 +78,7 @@ public class ExcelRowDataMapper<T> {
             }
         } catch (Exception e) {
             String message = String.format("[%d] 번째 행, [%d] 번째 열 데이터 타입이 일치하지 않습니다.", cell.getRowIndex(), cell.getColumnIndex());
-            throw new InvalidExcelFormException(message);
+            throw new InvalidExcelFormException(message, InvalidExcelType.NO_MATCH_CELL_TYPE);
         }
     }
 
@@ -84,7 +93,7 @@ public class ExcelRowDataMapper<T> {
             }
         } catch (Exception e) {
             String message = String.format("[%d] 번째 행, [%d] 번째 열 데이터 타입이 일치하지 않습니다.", cell.getRowIndex(), cell.getColumnIndex());
-            throw new InvalidExcelFormException(message);
+            throw new InvalidExcelFormException(message, InvalidExcelType.NO_MATCH_CELL_TYPE);
         }
     }
 
