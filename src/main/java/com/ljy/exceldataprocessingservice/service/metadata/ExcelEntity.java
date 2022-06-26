@@ -10,4 +10,6 @@ import java.lang.annotation.Target;
 public @interface ExcelEntity {
     int rowCacheSize() default 100;
     int bufferSize() default 4096;
+
+    int rowAccessWindowSize() default 1000;
 }

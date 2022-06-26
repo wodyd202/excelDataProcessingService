@@ -12,16 +12,11 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.data.domain.Page;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.Collection;
-import java.util.List;
-import java.util.function.Consumer;
 
 @Slf4j
 @Component
@@ -48,20 +43,23 @@ public class ExcelDataProcessingService {
         }
     }
 
-    @Async("excelWriteExecutor")
-    public <T> void writeExcel(ExcelWriteMetaData<T> metaData, Consumer<byte[]> consumer) {
+    public <T> byte[] writeExcel(ExcelWriteMetaData<T> metaData) {
         try {
+            Class<T> dataType = metaData.getDataType();
+            ExcelEntity excelEntity = dataType.getAnnotation(ExcelEntity.class);
             XSSFWorkbook xssfWorkbook = new XSSFWorkbook();
-            Workbook workbook = new SXSSFWorkbook(xssfWorkbook, 1000);
+            Workbook workbook = new SXSSFWorkbook(xssfWorkbook, excelEntity.rowAccessWindowSize());
             Sheet sheet = workbook.createSheet(metaData.getSheetName());
-            ExcelSheetDataWriter dataWriter = new ExcelSheetDataWriter(sheet, metaData);
+            ExcelSheetDataWriter<T> dataWriter = new ExcelSheetDataWriter<>(sheet, metaData);
+            log.info("start excel write, meta data : {}", metaData);
             dataWriter.execute();
+            log.info("end excel write");
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             workbook.write(bos);
             byte[] result = bos.toByteArray();
             workbook.close();
             bos.close();
-            consumer.accept(result);
+            return result;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
