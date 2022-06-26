@@ -2,13 +2,11 @@ package com.ljy.exceldataprocessingservice.service;
 
 import com.ljy.exceldataprocessingservice.service.exception.InvalidExcelFormException;
 import com.ljy.exceldataprocessingservice.service.exception.InvalidExcelType;
-import com.ljy.exceldataprocessingservice.service.metadata.ExcelColum;
 import com.ljy.exceldataprocessingservice.service.metadata.ExcelReadMetaData;
 import lombok.Getter;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -17,7 +15,6 @@ import java.util.Date;
 
 @Getter
 public class ExcelRowDataMapper<T> {
-    private int notSetCount = 0;
 
     private final ExcelReadMetaData<T> metaData;
 
@@ -30,13 +27,13 @@ public class ExcelRowDataMapper<T> {
         this.metaData = metaData;
     }
 
-    public T execute(Row row) {
+    public T mapFrom(Row row) {
         T instance = newInstance();
         int cellIdx = 0;
         for (Cell cell : row) {
             verifyValidCell(cellIdx, cell);
             String headerTitle = excelSheetHeader.get(cellIdx);
-            map(instance, headerTitle, cell);
+            bindingCellToField(instance, headerTitle, cell);
             cellIdx++;
         }
         return instance;
@@ -59,7 +56,7 @@ public class ExcelRowDataMapper<T> {
         }
     }
 
-    public void map(T instance, String headerTitle, Cell cell) {
+    public void bindingCellToField(T instance, String headerTitle, Cell cell) {
         Field field = excelSheetHeader.getColumFieldMap().get(headerTitle);
         field.setAccessible(true);
 
@@ -68,9 +65,6 @@ public class ExcelRowDataMapper<T> {
         }
         if (isStringTypeCell(cell)) {
             setStringValue(cell, instance, field);
-        }
-        if (isBlankCell(cell)) {
-            notSetCount++;
         }
     }
 
@@ -107,10 +101,6 @@ public class ExcelRowDataMapper<T> {
 
     private boolean isStringTypeCell(Cell cell) {
         return cell.getCellType() == CellType.STRING;
-    }
-
-    private boolean isBlankCell(Cell cell) {
-        return cell.getCellType() == CellType.BLANK;
     }
 
     private boolean isNumberTypeCell(Cell cell) {

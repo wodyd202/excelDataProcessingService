@@ -29,7 +29,7 @@ public class ExcelSheetDataReader<T> {
         Collection collection = getNewCollection(collectionType);
         int readCount = readMetaData.getStandardRow();
         for(Row row : targetSheet) {
-            T obj = excelRowDataMapper.execute(row);
+            T obj = excelRowDataMapper.mapFrom(row);
             ExcelData excelData = (ExcelData) obj;
             if(excelData.isEmpty()) {
                 continue;
