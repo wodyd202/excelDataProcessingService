@@ -92,6 +92,8 @@ public class ExcelRowDataMapper<T> {
                 field.setDouble(instance, cell.getNumericCellValue());
             } else if(isDateTypeField(field)) {
                 field.set(instance, SDF.parse(cell.getStringCellValue()));
+            } else if(isStringType(field)) {
+                field.set(instance, String.valueOf(cell.getNumericCellValue()));
             }
         } catch (Exception e) {
             String message = String.format("[%d] 번째 행, [%d] 번째 열 데이터 타입이 일치하지 않습니다.", cell.getRowIndex() + 1, cell.getColumnIndex());
